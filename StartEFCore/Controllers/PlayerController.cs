@@ -39,7 +39,7 @@ namespace StartEFCore.Controllers
         //[Route("create/team'player/{id}")]
         public IActionResult CreatePlayerToTeam(int teamId)
         {
-            Player model=new Player();
+            Player model = new Player();
             model.TeamId = teamId;
             return View(model);
         }
@@ -55,7 +55,7 @@ namespace StartEFCore.Controllers
                 _context.Players.Add(model);
                 //contextteki tüm degisikleri kaydet
                 _context.SaveChanges();
-                return RedirectToAction("TeamPlayers", new {id = model.TeamId});
+                return RedirectToAction("TeamPlayers", new { id = model.TeamId });
 
             }
 
@@ -68,8 +68,9 @@ namespace StartEFCore.Controllers
             return View(model);
         }
         //TODO: Id'Sİ ESİT OLAN OYUNCUNUN BİLGİLERİNİ GUNCELLE (UPDATE)
-        public IActionResult Edit(int id)
+        public IActionResult Edit(int id, string returnUrl = "")
         {
+            ViewBag.ReturnUrl = string.IsNullOrEmpty(returnUrl) ? "" : returnUrl;
             Player model = _context.Players.Find(id);
             ViewBag.TeamsDDL = _context.Teams.Select(u => new SelectListItem
             {
@@ -82,7 +83,7 @@ namespace StartEFCore.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Player model)
+        public IActionResult Edit(int id, Player model, string returnUrl = "")
         {
             if (id != model.Id)//güncellenecek kayıtın id kontrolu yapılıyor(farklı ise hata verdiricek)
             {
@@ -96,11 +97,16 @@ namespace StartEFCore.Controllers
                 try
                 {
                     TryToUpdatePlayer(model);
-                    return RedirectToAction("Edit", new {id = id});
+                    if (!string.IsNullOrEmpty(returnUrl)
+                && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+                    return RedirectToAction("Index");
                 }
                 catch (DBConcurrencyException ex)
                 {
-                    if (_context.Players.Find(id)==null)
+                    if (_context.Players.Find(id) == null)
                     {
                         return NotFound();
                     }
@@ -132,12 +138,12 @@ namespace StartEFCore.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id,Player model, string returnUrl = "")
+        public IActionResult Delete(int id, Player model, string returnUrl = "")
         {
-            if (_context.Players.Find(model.Id) == null|| id!=model.Id)//güvenlik,modeldeki dogrulugu kontrol eder, veritabanını da kontrol eder(3 guvenlık asaması saglar)
+            if (_context.Players.Find(model.Id) == null || id != model.Id)//güvenlik,modeldeki dogrulugu kontrol eder, veritabanını da kontrol eder(3 guvenlık asaması saglar)
             {
                 return NotFound();
-               
+
             }
 
             try
@@ -158,7 +164,7 @@ namespace StartEFCore.Controllers
             {
                 throw (ex);
             }
-           
+
         }
     }
 

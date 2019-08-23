@@ -93,25 +93,19 @@ namespace StartEFCore.Controllers
         }
 
         //TODO: Id'Sİ ESİT OLAN TAKIMIN BİLGİLERİ SİL (DELETE)
-        //public IActionResult Delete(int id)
-        //{
-        //    Team model = _context.Teams.Find(id);
-        //    return View(model);
-        //}
-        public IActionResult Delete(int id, string returnUrl = "")
+        public IActionResult Delete(int id)
         {
-            ViewBag.ReturnUrl = string.IsNullOrEmpty(returnUrl) ? "" : returnUrl;
             Team model = _context.Teams.Find(id);
             return View(model);
         }
-
+    
 
         //delete yapılırken takıma ait oyuncu var mı kotrol et
         //yoksa sil
         //varsa silme
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id, Team model,string returnUrl = "")
+        public IActionResult Delete(int id, Team model)
         {
             
             if (id!=model.Id)//güvenlik,modeldeki dogrulugu kontrol eder, veritabanını da kontrol eder(3 guvenlık asaması saglar)
@@ -126,12 +120,7 @@ namespace StartEFCore.Controllers
                 }
                 //Team team = _context.Teams.Find(model.Id);
                 _context.Teams.Remove(model);
-                _context.SaveChanges();
-                if (!string.IsNullOrEmpty(returnUrl)
-                    && Url.IsLocalUrl(returnUrl))
-                {
-                    return Redirect(returnUrl);
-                }
+                _context.SaveChanges();     
                 return RedirectToAction("Index");
                 // return RedirectToAction("TeamPlayers", new {id = player.TeamId});
             }
